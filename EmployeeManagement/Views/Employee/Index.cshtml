@@ -1,0 +1,258 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="pos-f-t border-primary">
+    <nav class="navbar navbar-dark bg-light border-primary">
+        <img src="~/Content/Image/q10solutions.png" class="img-fluid" width="110" height="150" alt="...">
+    </nav>
+</div>
+
+
+
+
+
+
+<div class="row m-4">
+
+    <div class="col-sm-12">
+        <div class="card border-primary">
+            <div class="card-header">
+                Q10 EmployeeManagement
+            </div>
+        </div>
+
+        <div class="card  border-darkz">
+            <div class="card-body">
+                <table id="myTable" class="table table-striped table-light">
+                    <thead>
+                        <tr>
+
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th>Salary</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <input type="text" id="txtId" name="txtId" />
+                <div class="form-group">
+                    <label for="txtName" name="txtName">Name</label>
+                    <input type="text" class="form-control" id="txtName" />    @*formulario*@
+                </div>
+                <div class="form-group">
+                    <label for="txtPosition">Position</label>
+                    <input type="text" class="form-control" id="txtPosition" name="txtPosition" />
+                </div>
+                <div class="form-group">
+                    <label for="txtOffice">Office</label>
+                    <input type="text" class="form-control" id="txtOffice" name="txtOffice" />
+                </div>
+                <div class="form-group">
+                    <label for="txtSalary">Salary</label>
+                    <input type="text" class="form-control" id="txtSalary" name="txtSalary" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="Save()">Success</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+    @*Dependencias necesarias para el uso del  dataTable jQuery y algunos estilos*@
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <!-- jQuery UI JS -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+    <!-- DataTables jQuery UI CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.jqueryui.min.css">
+
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+    <!-- DataTables jQuery UI JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.jqueryui.min.js"></script>
+
+    <!-- responsive -->
+    <link href="https://cdn.datatables.net/v/bs5/dt-2.1.4/b-3.1.1/r-3.0.2/rr-1.5.0/sl-2.0.5/datatables.min.css" rel="stylesheet">
+
+    <script src="https://cdn.datatables.net/v/bs5/dt-2.1.4/b-3.1.1/r-3.0.2/rr-1.5.0/sl-2.0.5/datatables.min.js"></script>
+
+    <script>
+        var table_Employee //Donde se guarda la tabla.
+
+    $(document).ready(function () {
+        table_Employee = $("#myTable").DataTable({
+
+            "ajax": {
+                "url": '@Url.Action("GetEmployees", "Employee")',  // La URL a la que se enviará la solicitud para poder recibir los datos.
+                "type": 'GET',               // El tipo de solicitud: 'GET', 'POST', etc.
+                "dataType": 'json',          // El tipo de datos que retorna la función en este caso Json
+            },
+            "columns": [
+                { "data": "Name" },
+                { "data": "Position" },
+                { "data": "Office" },  //Columnas a mostrar
+                { "data": "Salary" },
+                {
+                    "data": "Id",
+                    "render": function (data) {
+                        return "<button class='btn btn-primary btn-sm' onClick='abrirModulo(" + data + ")'><i class='fas fa-pen'></i></button>" +  //La variable data es el Id.
+                               "<button class='btn btn-danger btn-sm' onClick='Eliminar(" + data + ")'><i class='fas fa-trash'></i></button>";
+                    },
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "150px"
+                }
+            ],
+            dom: 'Bfrtip',
+            buttons: [
+                 {
+                    text: 'Add new',
+                    attr: { class: "btn btn-success btn-md" },// estilos del btn actualizar.
+                    action: function (e, dt, node, config) {
+                     abrirModulo(0); //abrir el modulo al dar click se le pasa por defecto 0 para saber que es uno nuevo.
+                    }
+                 }
+            ],
+        });
+    });
+
+        function abrirModulo(id) {
+        $('#txtId').val(id)
+
+        $("#formModal").modal('show');  //Abriendo el formulario
+
+        if (id != 0) {
+            jQuery.ajax({
+                url: '@Url.Action("GetEmployee", "Employee")' + "?Id=" + id, //Se obtiene los datos por el Id
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    console.log(data) //Revisar si efectivamente estan llegando los datos.
+                    if (data != null) {
+                        $("#txtId").val(data.Id);
+                        $("#txtName").val(data.Name);
+                        $("#txtPosition").val(data.Position);  //Luego de que se obtienen se pintan en los campos correspondientes.
+                        $("#txtOffice").val(data.Office);
+                        $("#txtSalary").val(data.Salary);
+                    }
+                }
+            })
+        } else
+        {
+            $("#txtName").val("");
+            $("#txtPosition").val("");  // si es 0 es porque se va a agregar uno nuevo, por lo que se colocan los campos en blanco.
+            $("#txtOffice").val("");
+            $("#txtSalary").val("");
+        }
+    }
+
+
+
+        function Eliminar(id) {
+
+            if (confirm("Realmente desea eliminar?")) {  //Pregunta al usuario si en realidad desea eliminar
+                console.log("Si")
+
+                jQuery.ajax({
+
+                  url: '@Url.Action("DeleteEmployee", "Employee")' + "?Id=" + id, //Se le,pasa al controlador el Id a eliminar.
+                  type: "GET",
+                  dataType: "json",
+                  contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.resultado) {
+                            table_Employee.ajax.reload();
+                        }
+                    }
+                })
+            } else {
+                console.log("No")
+            }
+        }
+
+        function Save() {
+
+            var $data = {
+                oEmployee: {
+                    Id: parseInt($("#txtId").val()),   // Se realiza un casting o parcerizacion para convertir el texto en int.
+                    Name: $("#txtName").val(),
+                    Position: $("#txtPosition").val(),
+                    Office: $("#txtOffice").val(),
+                    Salary: $("#txtSalary").val(),
+                }
+            }
+
+           console.log($data);  //Saber si en realidad se estan guardando los datos en el json
+
+            jQuery.ajax({
+                url: '@Url.Action("UpdateEmployees", "Employee")', //llamada al metodo actualizar del controlador.
+                type: 'POST',
+                data: JSON.stringify($data),  //Convierte un json en texto.
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+
+                success: function (data) {
+                    console.log(data.resultado);
+                    if (data.resultado) { //Valor obtenido de la llamada al controlador.
+                        table_Employee.ajax.reload(); //Recargar luego de guardar la informacion.
+                        $('#formModal').modal('hide'); //Oculte el modal luego de guardar.
+                    } else {
+                        alert("No se pudo guardar los cambios."); //Si algo sale mal.
+                    }
+
+                },
+                error: function (error) {
+                    console.log(error)
+
+                },
+                beforeSend: function () {
+
+                }
+            });
+        }
+
+
+    </script>
+
+}
+
