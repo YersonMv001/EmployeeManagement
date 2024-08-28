@@ -1,7 +1,7 @@
 # EmployeeManagement
 
 Pasos para la ejecución correcta del proyecto: 
-1: Crear la base de datos anexada en la carpeda Database.
+1: Crear la base de datos con la consulta SQL que contiene el archivo BaseDeDatos.db
 
 2: Clonar el repositorio 
 
