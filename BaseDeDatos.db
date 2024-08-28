@@ -1,0 +1,13 @@
+Consulta sql para crear la base de datos:
+
+CREATE DATABASE EmployeeDB;
+
+USE EmployeeDB;
+
+CREATE TABLE Employee (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Position NVARCHAR(100) NOT NULL,
+    Office NVARCHAR(100) NOT NULL,
+    Salary DECIMAL(18, 2) NULL
+);
